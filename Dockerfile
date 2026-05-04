@@ -3,7 +3,11 @@ FROM golang:1.22-alpine AS builder
 WORKDIR /app
 
 COPY . .
-RUN go mod tidy && CGO_ENABLED=0 GOOS=linux go build -o server ./cmd/main.go
+
+RUN go install github.com/swaggo/swag/cmd/swag@latest && \
+    go mod tidy && \
+    swag init -g cmd/main.go && \
+    CGO_ENABLED=0 GOOS=linux go build -o server ./cmd/main.go
 
 FROM alpine:3.19
 

@@ -21,17 +21,17 @@ type PaginatedResult struct {
 	Total int64
 }
 
-func (r *BookRepository) FindAll(p *dto.PaginationDTO) (*PaginatedResult, error) {
+func (r *BookRepository) FindAll(userID uuid.UUID, p *dto.PaginationDTO) (*PaginatedResult, error) {
 	var books []models.Book
 	var total int64
 
 	offset := (p.Page - 1) * p.Limit
+	q := r.db.Model(&models.Book{}).Where("user_id = ?", userID)
 
-	if err := r.db.Model(&models.Book{}).Count(&total).Error; err != nil {
+	if err := q.Count(&total).Error; err != nil {
 		return nil, err
 	}
-
-	if err := r.db.Offset(offset).Limit(p.Limit).Find(&books).Error; err != nil {
+	if err := q.Offset(offset).Limit(p.Limit).Find(&books).Error; err != nil {
 		return nil, err
 	}
 

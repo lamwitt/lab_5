@@ -9,6 +9,7 @@ import (
 
 type Book struct {
 	ID          uuid.UUID      `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
+	UserID      uuid.UUID      `gorm:"type:uuid;not null;index"                       json:"userId"`
 	Title       string         `gorm:"not null;size:255"                              json:"title"`
 	Author      string         `gorm:"not null;size:255"                              json:"author"`
 	Description string         `gorm:"type:text"                                      json:"description"`
