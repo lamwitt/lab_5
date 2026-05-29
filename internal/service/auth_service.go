@@ -232,6 +232,7 @@ func (s *AuthService) ExchangeYandexCode(code string) (string, string, error) {
 		"code":          {code},
 		"client_id":     {s.cfg.OAuthYandexClientID},
 		"client_secret": {s.cfg.OAuthYandexClientSecret},
+		"redirect_uri":  {s.cfg.OAuthYandexCallbackURL},
 	})
 	if err != nil {
 		return "", "", err
@@ -240,9 +241,13 @@ func (s *AuthService) ExchangeYandexCode(code string) (string, string, error) {
 
 	var tokenResp struct {
 		AccessToken string `json:"access_token"`
+		Error       string `json:"error"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&tokenResp); err != nil {
 		return "", "", err
+	}
+	if tokenResp.Error != "" || tokenResp.AccessToken == "" {
+		return "", "", fmt.Errorf("yandex token error: %s", tokenResp.Error)
 	}
 
 	req, _ := http.NewRequest("GET", "https://login.yandex.ru/info?format=json", nil)
@@ -253,6 +258,10 @@ func (s *AuthService) ExchangeYandexCode(code string) (string, string, error) {
 		return "", "", err
 	}
 	defer userResp.Body.Close()
+
+	if userResp.StatusCode != http.StatusOK {
+		return "", "", fmt.Errorf("yandex user info error: status %d", userResp.StatusCode)
+	}
 
 	var info yandexUserInfo
 	if err := json.NewDecoder(userResp.Body).Decode(&info); err != nil {

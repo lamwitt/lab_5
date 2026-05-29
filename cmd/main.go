@@ -56,6 +56,7 @@ func main() {
 	bookCtrl := controller.NewBookController(bookSvc, authSvc)
 
 	r := gin.Default()
+	controller.RegisterFrontendRoutes(r)
 	authCtrl.RegisterRoutes(r)
 	bookCtrl.RegisterRoutes(r)
 

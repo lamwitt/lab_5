@@ -324,7 +324,7 @@ func (c *AuthController) OAuthCallback(ctx *gin.Context) {
 	}
 
 	c.setTokenCookies(ctx, accessToken, refreshToken)
-	ctx.Redirect(http.StatusFound, "/")
+	ctx.Redirect(http.StatusFound, "/books")
 }
 
 func (c *AuthController) setTokenCookies(ctx *gin.Context, accessToken, refreshToken string) {
